@@ -1,3 +1,7 @@
+it/unipi/hadoop/drstrange/LetterFrequencyAnalyzer$LetterFrequencyMapper.class
 it/unipi/hadoop/drstrange/WordCount$IntSumReducer.class
 it/unipi/hadoop/drstrange/WordCount.class
+it/unipi/hadoop/drstrange/LetterFrequencyAnalyzer$LetterFrequencyReducer.class
+it/unipi/hadoop/drstrange/LetterFrequencyAnalyzer.class
 it/unipi/hadoop/drstrange/WordCount$TokenizerMapper.class
+it/unipi/hadoop/drstrange/Test.class
