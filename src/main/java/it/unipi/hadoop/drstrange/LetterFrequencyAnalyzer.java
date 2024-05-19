@@ -22,7 +22,7 @@ public class LetterFrequencyAnalyzer {
         Configuration conf = new Configuration();
         String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
         if (otherArgs.length < 2) {
-            System.err.println("Usage: wordcount <in> [<in>...] <out>");
+            System.err.println("Usage: hadoop jar letter-frequency-1.0-SNAPSHOT.jar it.unipi.hadoop.drstrange.LetterFrequencyAnalyzer <in> [<in>...] <out>");
             System.exit(2);
         }
         Job job = Job.getInstance(conf, "Letter Frequency Analysis");
