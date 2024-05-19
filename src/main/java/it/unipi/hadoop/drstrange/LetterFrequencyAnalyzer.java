@@ -13,6 +13,8 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LetterFrequencyAnalyzer {
 
@@ -40,9 +42,15 @@ public class LetterFrequencyAnalyzer {
 
     public static class LetterFrequencyMapper extends Mapper<Object, Text, Text, IntWritable> {
 
-        private final static IntWritable one = new IntWritable(1);
+        private Map<Character, Integer> letterCounts; // In-mapper combining
 
-        private final Text letter = new Text();
+        private final Text outputKey = new Text();
+        private final IntWritable outputValue = new IntWritable();
+
+        @Override
+        protected void setup(Mapper<Object, Text, Text, IntWritable>.Context context) throws IOException, InterruptedException {
+            letterCounts = new HashMap<>();
+        }
 
         public void map(Object key, Text value, Context context ) throws IOException, InterruptedException {
 
@@ -51,9 +59,17 @@ public class LetterFrequencyAnalyzer {
 
             for (char c : tokenizer) {
                 if (((int) c >= 97 && (int) c <= 122)) {
-                    letter.set(Character.toString(c));
-                    context.write(letter, one);
+                    letterCounts.merge(c, 1, Integer::sum);
                 }
+            }
+        }
+
+        @Override
+        protected void cleanup(Mapper<Object, Text, Text, IntWritable>.Context context) throws IOException, InterruptedException {
+            for (Map.Entry<Character, Integer> entry : letterCounts.entrySet()) {
+                outputKey.set(Character.toString(entry.getKey()));
+                outputValue.set(entry.getValue());
+                context.write(outputKey, outputValue);
             }
         }
     }
