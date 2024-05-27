@@ -1,58 +1,72 @@
 package it.unipi.hadoop;
 
-import it.unipi.hadoop.charcounter.CharCountMapper;
-import it.unipi.hadoop.charcounter.CharCountReducer;
-import it.unipi.hadoop.frequencycalculator.PercentageJoinMapper;
-import it.unipi.hadoop.frequencycalculator.PercentageReducer;
-import it.unipi.hadoop.totalcharcounter.TotalCountMapper;
-import it.unipi.hadoop.totalcharcounter.TotalCountReducer;
+import it.unipi.hadoop.frequencycalculator.LetterFrequencyCalculator;
+import it.unipi.hadoop.totalcharcounter.TotalCharacterCount;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.util.GenericOptionsParser;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URI;
 
 public class CharFrequency {
 
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
+        String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
+        if (otherArgs.length != 3) {
+            System.err.println("Usage: CharFrequency <input> <intermediate-output> <final-output>");
+            System.exit(2);
+        }
 
-        // Job 1: Character Count
-        Job job1 = Job.getInstance(conf, "character count");
-        job1.setJarByClass(CharFrequency.class);
-        job1.setMapperClass(CharCountMapper.class);
-        job1.setCombinerClass(CharCountReducer.class);
-        job1.setReducerClass(CharCountReducer.class);
-        job1.setOutputKeyClass(Text.class);
-        job1.setOutputValueClass(IntWritable.class);
-        FileInputFormat.addInputPath(job1, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job1, new Path(args[1]));
-        job1.waitForCompletion(true);
+//        String tempDir = "/tmp/hadoop-job-temp";
+//        conf.set("temp.dir", tempDir);
 
-        // Job 2: Total Character Count
-        Job job2 = Job.getInstance(conf, "total count");
-        job2.setJarByClass(CharFrequency.class);
-        job2.setMapperClass(TotalCountMapper.class);
-        job2.setCombinerClass(TotalCountReducer.class);
-        job2.setReducerClass(TotalCountReducer.class);
-        job2.setOutputKeyClass(Text.class);
-        job2.setOutputValueClass(IntWritable.class);
-        FileInputFormat.addInputPath(job2, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job2, new Path(args[2]));
-        job2.waitForCompletion(true);
+        // First job configuration
+        Job firstJob = Job.getInstance(conf, "Total Character Count");
+        firstJob.setJarByClass(TotalCharacterCount.class);
+        firstJob.setMapperClass(TotalCharacterCount.TotalCountMapper.class);
+        firstJob.setReducerClass(TotalCharacterCount.TotalCountReducer.class);
+        firstJob.setOutputKeyClass(Text.class);
+        firstJob.setOutputValueClass(IntWritable.class);
+        FileInputFormat.addInputPath(firstJob, new Path(otherArgs[0]));
+        FileOutputFormat.setOutputPath(firstJob, new Path(otherArgs[1]));
 
-        // Job 3: Calculate Percentage
-        Job job3 = Job.getInstance(conf, "calculate percentage");
-        job3.setJarByClass(CharFrequency.class);
-        job3.setMapperClass(PercentageJoinMapper.class);
-        job3.setReducerClass(PercentageReducer.class);
-        job3.setOutputKeyClass(Text.class);
-        job3.setOutputValueClass(Text.class);
-        FileInputFormat.addInputPath(job3, new Path(args[1])); // character counts
-        FileInputFormat.addInputPath(job3, new Path(args[2])); // total count
-        FileOutputFormat.setOutputPath(job3, new Path(args[3]));
-        System.exit(job3.waitForCompletion(true) ? 0 : 1);
+        if (!firstJob.waitForCompletion(true)) {
+            System.exit(1);
+        }
+
+        // Read the output from the temporary file
+        FileSystem fs = FileSystem.get(new URI(otherArgs[1]+"/part-r-00000"), conf);
+        Path tempFilePath = new Path(otherArgs[1]+"/part-r-00000");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(tempFilePath)));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            // Assume the file contains a single value
+            String[] words = line.split("\t");
+            if( words.length == 2 && words[0].equals("total")) {
+                conf.set("shared.value", words[1]);
+            }
+        }
+        reader.close();
+
+    /// Second job configuration
+        Job secondJob = Job.getInstance(conf, "Second Job");
+        secondJob.setJarByClass(LetterFrequencyCalculator.class);
+        secondJob.setMapperClass(LetterFrequencyCalculator.LetterFrequencyMapper.class);
+        secondJob.setReducerClass(LetterFrequencyCalculator.LetterFrequencyReducer.class);
+        secondJob.setOutputKeyClass(Text.class);
+        secondJob.setOutputValueClass(FloatWritable.class);
+        FileInputFormat.addInputPath(secondJob, new Path(otherArgs[0])); // Intermediate output from the first job
+        FileOutputFormat.setOutputPath(secondJob, new Path(otherArgs[2]));
+
+        System.exit(secondJob.waitForCompletion(true) ? 0 : 1);
     }
 }
