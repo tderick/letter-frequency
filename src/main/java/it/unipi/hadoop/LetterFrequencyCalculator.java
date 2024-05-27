@@ -1,4 +1,4 @@
-package it.unipi.hadoop.frequencycalculator;
+package it.unipi.hadoop;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.io.FloatWritable;
@@ -48,11 +48,11 @@ public class LetterFrequencyCalculator {
     public static class LetterFrequencyReducer extends Reducer<Text, FloatWritable, Text, FloatWritable> {
 
         private final FloatWritable result = new FloatWritable();
-        private int sharedValue;
+        private int totalCharacterCount;
 
         @Override
         protected void setup(Reducer<Text, FloatWritable, Text, FloatWritable>.Context context) throws IOException, InterruptedException {
-            sharedValue = Integer.parseInt(context.getConfiguration().get("shared.value"));
+            totalCharacterCount = Integer.parseInt(context.getConfiguration().get("total.character.count"));
         }
 
         public void reduce(Text key, Iterable<FloatWritable> values, Context context) throws IOException, InterruptedException {
@@ -60,8 +60,21 @@ public class LetterFrequencyCalculator {
             for (FloatWritable val : values) {
                 sum += val.get();
             }
-            float percentage = (sum / sharedValue) * 100;
+            float percentage = (sum / totalCharacterCount) * 100;
             result.set(percentage);
+            context.write(key, result);
+        }
+    }
+
+    public static class LetterFrequencyCombiner extends Reducer<Text, FloatWritable, Text, FloatWritable> {
+        private final FloatWritable result = new FloatWritable();
+
+        public void reduce(Text key, Iterable<FloatWritable> values, Context context) throws IOException, InterruptedException {
+            float sum = 0;
+            for (FloatWritable val : values) {
+                sum += val.get();
+            }
+            result.set(sum);
             context.write(key, result);
         }
     }

@@ -1,4 +1,4 @@
-package it.unipi.hadoop.totalcharcounter;
+package it.unipi.hadoop;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.io.IntWritable;
@@ -14,17 +14,16 @@ public class TotalCharacterCount {
 
     public static class TotalCountMapper extends Mapper<Object, Text, Text, IntWritable> {
 
-        private Map<Character, Integer> totalCount; // In-mapper combining
-
         private final Text outputKey = new Text("total");
         private final IntWritable outputValue = new IntWritable();
+        private Map<Character, Integer> totalCount; // In-mapper combining
 
         @Override
         protected void setup(Mapper<Object, Text, Text, IntWritable>.Context context) throws IOException, InterruptedException {
             totalCount = new HashMap<>();
         }
 
-        public void map(Object key, Text value, Context context ) throws IOException, InterruptedException {
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
 
             String line = value.toString().toLowerCase();
             char[] tokenizer = StringUtils.deleteWhitespace(line).toCharArray();
