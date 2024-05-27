@@ -1,7 +1,10 @@
+it/unipi/hadoop/charcounter/CharCountReducer.class
 it/unipi/hadoop/drstrange/LetterFrequencyAnalyzer$LetterFrequencyMapper.class
-it/unipi/hadoop/drstrange/WordCount$IntSumReducer.class
-it/unipi/hadoop/drstrange/WordCount.class
+it/unipi/hadoop/totalcharcounter/TotalCountReducer.class
+it/unipi/hadoop/totalcharcounter/TotalCountMapper.class
 it/unipi/hadoop/drstrange/LetterFrequencyAnalyzer$LetterFrequencyReducer.class
+it/unipi/hadoop/frequencycalculator/PercentageReducer.class
+it/unipi/hadoop/frequencycalculator/PercentageJoinMapper.class
+it/unipi/hadoop/CharFrequency.class
 it/unipi/hadoop/drstrange/LetterFrequencyAnalyzer.class
-it/unipi/hadoop/drstrange/WordCount$TokenizerMapper.class
-it/unipi/hadoop/drstrange/Test.class
+it/unipi/hadoop/charcounter/CharCountMapper.class
