@@ -7,6 +7,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,7 +62,9 @@ public class LetterFrequencyCalculator {
                 sum += val.get();
             }
             float percentage = (sum / totalCharacterCount) * 100;
-            result.set(percentage);
+            DecimalFormat decfor = new DecimalFormat("0.00");
+            float roundedPercentage = Float.parseFloat(decfor.format(percentage));
+            result.set(roundedPercentage);
             context.write(key, result);
         }
     }
