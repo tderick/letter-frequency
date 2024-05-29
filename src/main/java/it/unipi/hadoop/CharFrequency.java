@@ -19,8 +19,8 @@ public class CharFrequency {
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
         String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
-        if (otherArgs.length != 3) {
-            System.err.println("Usage: hadoop jar <jar file> it.unipi.hadoop.CharFrequencyCharFrequency <input> <intermediate-output> <final-output>");
+        if (otherArgs.length != 4) {
+            System.err.println("Usage: hadoop jar <jar file> it.unipi.hadoop.CharFrequencyCharFrequency <input> <intermediate-output> <final-output> <number-reducer>");
             System.exit(2);
         }
 
@@ -63,6 +63,8 @@ public class CharFrequency {
         secondJob.setOutputValueClass(FloatWritable.class);
         FileInputFormat.addInputPath(secondJob, new Path(otherArgs[0]));
         FileOutputFormat.setOutputPath(secondJob, new Path(otherArgs[2]));
+
+        secondJob.setNumReduceTasks(Integer.parseInt(otherArgs[3]));
 
         System.exit(secondJob.waitForCompletion(true) ? 0 : 1);
     }
