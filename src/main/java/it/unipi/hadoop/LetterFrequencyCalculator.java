@@ -49,11 +49,11 @@ public class LetterFrequencyCalculator {
     public static class LetterFrequencyReducer extends Reducer<Text, FloatWritable, Text, FloatWritable> {
 
         private final FloatWritable result = new FloatWritable();
-        private int totalCharacterCount;
+        private long totalCharacterCount;
 
         @Override
         protected void setup(Reducer<Text, FloatWritable, Text, FloatWritable>.Context context) throws IOException, InterruptedException {
-            totalCharacterCount = Integer.parseInt(context.getConfiguration().get("total.character.count"));
+            totalCharacterCount = Long.parseLong(context.getConfiguration().get("total.character.count"));
         }
 
         public void reduce(Text key, Iterable<FloatWritable> values, Context context) throws IOException, InterruptedException {

@@ -5,6 +5,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -31,7 +32,7 @@ public class CharFrequency {
         firstJob.setCombinerClass(TotalCharacterCount.TotalCountReducer.class);
         firstJob.setReducerClass(TotalCharacterCount.TotalCountReducer.class);
         firstJob.setOutputKeyClass(Text.class);
-        firstJob.setOutputValueClass(IntWritable.class);
+        firstJob.setOutputValueClass(LongWritable.class);
         FileInputFormat.addInputPath(firstJob, new Path(otherArgs[0]));
         FileOutputFormat.setOutputPath(firstJob, new Path(otherArgs[1]));
 
