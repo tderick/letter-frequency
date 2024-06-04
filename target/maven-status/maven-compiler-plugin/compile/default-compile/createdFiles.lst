@@ -1,8 +1,0 @@
-it/unipi/hadoop/LetterFrequencyCalculator$LetterFrequencyCombiner.class
-it/unipi/hadoop/TotalCharacterCount.class
-it/unipi/hadoop/LetterFrequencyCalculator.class
-it/unipi/hadoop/TotalCharacterCount$TotalCountReducer.class
-it/unipi/hadoop/LetterFrequencyCalculator$LetterFrequencyReducer.class
-it/unipi/hadoop/LetterFrequencyCalculator$LetterFrequencyMapper.class
-it/unipi/hadoop/TotalCharacterCount$TotalCountMapper.class
-it/unipi/hadoop/CharFrequency.class
